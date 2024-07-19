@@ -8,6 +8,7 @@ from loguru import logger
 from langflow.graph.schema import CHAT_COMPONENTS, RECORDS_COMPONENTS, InterfaceComponentTypes, ResultData
 from langflow.graph.utils import UnbuiltObject, serialize_field
 from langflow.graph.vertex.base import Vertex
+from langflow.inputs.inputs import InputTypes
 from langflow.schema import Data
 from langflow.schema.artifact import ArtifactType
 from langflow.schema.message import Message
@@ -33,6 +34,16 @@ class CustomComponentVertex(Vertex):
 class ComponentVertex(Vertex):
     def __init__(self, data: Dict, graph):
         super().__init__(data, graph=graph, base_type="component")
+
+    def get_input(self, name: str) -> InputTypes:
+        if self._custom_component is None:
+            raise ValueError(f"Vertex {self.id} does not have a component instance.")
+        return self._custom_component.get_input(name)
+
+    def get_output(self, name: str) -> InputTypes:
+        if self._custom_component is None:
+            raise ValueError(f"Vertex {self.id} does not have a component instance.")
+        return self._custom_component.get_output(name)
 
     def _built_object_repr(self):
         if self.artifacts and "repr" in self.artifacts:
